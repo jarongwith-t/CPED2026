@@ -28,7 +28,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px so
 <header><h1>แบบฟอร์มการสมัครเข้าร่วมการแข่งขันทักษะวิชาการระดับประถมศึกษา</h1><p>วันการศึกษาเอกชน สมาคมโรงเรียนเอกชน ระดับประถมศึกษา</p></header>
 <nav><button id="b1" class="on" onclick="tab(1)">สมัครแข่งขัน</button><button id="b2" onclick="tab(2)">ประกาศผล</button><button id="b3" onclick="tab(3)">ใบประกาศนียบัตร</button></nav>
 <main>
-<section id="p1"><form id="f" onsubmit="return send(event)">
+<section id="p1"><div id="win" class="msg hide"></div><form id="f" onsubmit="return send(event)">
 <div class="card"><label>อีเมล <i>*</i></label><input type="email" id="email" required>
 <label>โรงเรียน <i>*</i></label><input id="school" required>
 <small>ส่งใบสมัครซ้ำด้วยโรงเรียนเดิมได้ ระบบจะใช้ข้อมูลล่าสุดแทนของเดิมในแต่ละรายการ</small></div>
@@ -59,8 +59,8 @@ table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px so
 // ===== ตั้งค่า =====
 const CFG={
  SCRIPT_URL:'https://script.google.com/macros/s/AKfycbxW2qJLsEhB6ocyXD__AOuZeKoIJhLR9g4B5IovZIGlAumB9ls-U56Y__BBj4EnSEjV/exec',
- prefixes:['เด็กชาย','เด็กหญิง','นาย','นาง','นางสาว'],
- teacherPrefixes:['นาย','นาง','นางสาว','ดร.','อื่นๆ'],
+ prefixes:['เด็กชาย','เด็กหญิง','นาย','นางสาว','นาง'],
+ teacherPrefixes:['นาย','นางสาว','นาง','ดร.','อื่นๆ'],
  levels:['ตอนต้น (ป.1-3)','ตอนปลาย (ป.4-6)'],
  events:[{name:'การแข่งขัน วาดภาพระบายสี',n:1},{name:'การแข่งขัน Spelling Bee',n:1},{name:'การแข่งขัน คัดลายมือภาษาไทย',n:1},{name:'การแข่งขัน เกม 24',n:2}],
  awards:['ชนะเลิศ','รองชนะเลิศอันดับที่ 1','รองชนะเลิศอันดับที่ 2'], // ลำดับการแสดงผล
@@ -87,6 +87,7 @@ CFG.levels.forEach(lv=>{
   blocks.push({lv,ev:ev.name,cb,students,t,body});
  })});
 async function send(e){e.preventDefault();
+ if(REG!=='open')return msg($('m'),'ขณะนี้ไม่อยู่ในช่วงเวลารับสมัคร',0),false;
  const entries=blocks.filter(b=>b.cb.checked).map(b=>({level:b.lv,event:b.ev,
   teacher:b.t.p.value+b.t.f.value.trim()+' '+b.t.l.value.trim(),
   students:b.students.map(s=>s.p.value+s.f.value.trim()+' '+s.l.value.trim())}));
@@ -96,7 +97,17 @@ async function send(e){e.preventDefault();
    body:JSON.stringify({email:$('email').value.trim(),school:$('school').value.trim(),entries})});
   msg($('m'),'ส่งใบสมัครแล้ว กรุณาตรวจสอบอีเมลยืนยัน หากไม่ได้รับภายใน 5 นาที ให้ติดต่อผู้จัด',1);$('f').reset();blocks.forEach(b=>b.body.classList.add('hide'))}
  catch(x){msg($('m'),'ส่งไม่สำเร็จ ลองใหม่อีกครั้ง',0)}
- $('sub').disabled=false;return false}
+ $('sub').disabled=REG!=='open';return false}
+// ===== ช่วงเวลารับสมัคร (กำหนดในแท็บ Settings ของ Google Sheet) =====
+let REG='open';
+async function loadConfig(){try{const c=await (await fetch(CFG.SCRIPT_URL+'?action=config')).json();REG=c.status;
+ const f=d=>new Date(d+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'});
+ const rng=c.open&&c.close?'ช่วงรับสมัคร '+f(c.open)+' ถึง '+f(c.close):'';
+ if(c.status==='before')msg($('win'),'ยังไม่เปิดรับสมัคร '+rng,0);
+ else if(c.status==='after')msg($('win'),'ปิดรับสมัครแล้ว '+rng,0);
+ else if(rng)msg($('win'),rng,1);
+ $('sub').disabled=c.status!=='open'}catch(x){}}
+loadConfig();
 // ===== ประกาศผล =====
 function fillSel(s,a){s.innerHTML='';a.forEach(x=>s.append(mk('option',{value:x,textContent:x})))}
 fillSel($('rl'),CFG.levels);fillSel($('re'),CFG.events.map(e=>e.name));
