@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>สมัครแข่งขันทักษะวิชาการระดับประถมศึกษา</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{--p:#5b45d6;--bg:#f0edfa}*{box-sizing:border-box}
 body{margin:0;font-family:'Sarabun','Noto Sans Thai',sans-serif;background:var(--bg);color:#222}
 header{background:var(--p);color:#fff;padding:20px;text-align:center}header h1{margin:0;font-size:1.25rem}header p{margin:4px 0 0;opacity:.85}
-nav{display:flex;justify-content:center;gap:8px;padding:12px}nav button{padding:10px 22px;border:0;border-radius:20px;background:#fff;cursor:pointer;font:inherit}nav button.on{background:var(--p);color:#fff}
+nav{display:flex;justify-content:center;gap:8px;padding:12px;flex-wrap:wrap}nav button{padding:10px 22px;border:0;border-radius:20px;background:#fff;cursor:pointer;font:inherit}nav button.on{background:var(--p);color:#fff}
 main{max-width:780px;margin:0 auto;padding:0 12px 40px}.card{background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px #0002}
 .lv{background:var(--p);color:#fff;border-radius:10px;padding:12px 16px;margin:16px 0 8px;font-weight:700}
 label{display:block;font-weight:600;margin:8px 0 4px}label i{color:#c00}
 input,select{width:100%;padding:10px;border:1px solid #bbb;border-radius:6px;font:inherit}
 .ev{display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer}.ev input{width:auto}
-.body{margin-top:8px}.row{display:flex;gap:8px;margin-bottom:8px}.row>*:nth-child(1){flex:0 0 110px}.row.t>*:nth-child(1){flex:0 0 110px}
-small{color:#666}.btn{background:var(--p);color:#fff;border:0;padding:12px 28px;border-radius:6px;font:inherit;cursor:pointer}.btn:disabled{opacity:.5}
+.body{margin-top:8px}.row{display:flex;gap:8px;margin-bottom:8px}.row>*:nth-child(1){flex:0 0 110px}
+small{color:#666}.btn{background:var(--p);color:#fff;border:0;padding:12px 28px;border-radius:6px;font:inherit;cursor:pointer}.btn:disabled{opacity:.5}.btn.s{padding:8px 14px}
 table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left}th{background:#e8e4fa}
 .msg{padding:12px;border-radius:6px;margin-top:10px}.ok{background:#e0f5e4}.er{background:#fde4e4}.hide{display:none}
+.ci{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eee}
+/* ใบประกาศ A4 แนวนอน (ซ่อนไว้หลังหน้าเว็บ ใช้สำหรับสร้าง PDF) */
+#cert{position:fixed;left:0;top:0;z-index:-1;width:1123px;height:794px;background:#fff;padding:28px}
+#cert .in{height:100%;border:10px double #b8892b;padding:30px 60px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:10px;color:#1f2a44}
+#cert .t{font-size:64px;font-weight:700;color:#b8892b;line-height:1.2}#cert .o{font-size:24px}
+#cert .n{font-size:50px;font-weight:700;margin:6px 0}#cert .l{font-size:30px}#cert .a{font-size:42px;font-weight:700;color:#5b45d6}
+#cert .s{font-size:24px;margin-top:10px}#cert .sg{margin-top:30px;font-size:22px;line-height:1.6}
 @media(max-width:560px){.row{flex-wrap:wrap}.row>*{flex:1 1 45%!important}}
 </style></head><body>
 <header><h1>แบบฟอร์มการสมัครเข้าร่วมการแข่งขันทักษะวิชาการระดับประถมศึกษา</h1><p>วันการศึกษาเอกชน สมาคมโรงเรียนเอกชน ระดับประถมศึกษา</p></header>
-<nav><button id="b1" class="on" onclick="tab(1)">สมัครแข่งขัน</button><button id="b2" onclick="tab(2)">ประกาศผล</button></nav>
+<nav><button id="b1" class="on" onclick="tab(1)">สมัครแข่งขัน</button><button id="b2" onclick="tab(2)">ประกาศผล</button><button id="b3" onclick="tab(3)">ใบประกาศนียบัตร</button></nav>
 <main>
 <section id="p1"><form id="f" onsubmit="return send(event)">
 <div class="card"><label>อีเมล <i>*</i></label><input type="email" id="email" required>
@@ -33,8 +41,20 @@ table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px so
 <label>ค้นหาโรงเรียน</label><input id="q" oninput="showResults()">
 <div style="overflow-x:auto;margin-top:12px"><table><thead id="rh"></thead><tbody id="rb"></tbody></table></div>
 <p id="rn" class="msg hide"></p></div></section>
+<section id="p3" class="hide"><div class="card">
+<p style="margin-top:0">กรอกชื่อโรงเรียนและอีเมลที่ใช้สมัคร (ตรงกับตอนสมัครทุกตัวอักษร) เพื่อขอใบประกาศนียบัตร</p>
+<label>โรงเรียน</label><input id="cs"><label>อีเมลที่ใช้สมัคร</label><input id="ce" type="email">
+<br><br><button class="btn" id="cb" onclick="findCerts()">ค้นหาใบประกาศ</button>
+<div id="cm" class="msg hide"></div><div id="cl"></div></div></section>
 </main>
+<div id="cert"><div class="in">
+<div class="o" id="c-org"></div><div class="t">เกียรติบัตร</div><div class="o">ให้ไว้เพื่อแสดงว่า</div>
+<div class="n" id="c-name"></div><div class="l" id="c-act"></div><div class="a" id="c-aw"></div>
+<div class="l" id="c-ev"></div><div class="l" id="c-lv"></div><div class="s" id="c-sc"></div><div class="sg" id="c-sg"></div>
+</div></div>
 <script>window.onerror=function(m,u,l){var d=document.createElement('div');d.className='msg er';d.textContent='เกิดข้อผิดพลาดของหน้าเว็บ: '+m+' (บรรทัด '+l+')';var x=document.querySelector('main');x&&x.prepend(d)}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 // ===== ตั้งค่า =====
 const CFG={
@@ -42,12 +62,17 @@ const CFG={
  prefixes:['เด็กชาย','เด็กหญิง','นาย','นาง','นางสาว'],
  teacherPrefixes:['นาย','นาง','นางสาว','ดร.','อื่นๆ'],
  levels:['ตอนต้น (ป.1-3)','ตอนปลาย (ป.4-6)'],
- events:[{name:'การแข่งขันวาดภาพ ระบายสี',n:1},{name:'Spelling Bee',n:1},{name:'คัดลายมือภาษาไทย',n:1},{name:'เกม 24',n:2}]
+ events:[{name:'การแข่งขันวาดภาพ ระบายสี',n:1},{name:'Spelling Bee',n:1},{name:'คัดลายมือภาษาไทย',n:1},{name:'เกม 24',n:2}],
+ awards:['ชนะเลิศ','รองชนะเลิศอันดับที่ 1','รองชนะเลิศอันดับที่ 2'], // ลำดับการแสดงผล
+ cert:{org:'วันการศึกษาเอกชน สมาคมโรงเรียนเอกชน ระดับประถมศึกษา',
+  date:'', signer:'', position:''} // ใส่วันที่/ชื่อผู้ลงนาม/ตำแหน่ง ถ้าต้องการให้พิมพ์ในใบประกาศ
 };
 const $=id=>document.getElementById(id);
 function mk(tag,props,kids){const e=document.createElement(tag);Object.assign(e,props||{});(kids||[]).forEach(k=>e.append(k));return e}
 function sel(arr){return mk('select',{},arr.map(x=>mk('option',{value:x,textContent:x})))}
 function inp(ph){return mk('input',{placeholder:ph})}
+function msg(el,t,ok){el.textContent=t;el.className='msg '+(ok?'ok':'er')}
+// ===== หน้าสมัคร =====
 const blocks=[];
 CFG.levels.forEach(lv=>{
  $('levels').append(mk('div',{className:'lv',textContent:'รายการแข่งขันทักษะวิชาการระดับประถมศึกษา '+lv}));
@@ -56,18 +81,16 @@ CFG.levels.forEach(lv=>{
   for(let i=0;i<ev.n;i++){const s={p:sel(CFG.prefixes),f:inp('ชื่อ'),l:inp('นามสกุล')};students.push(s);
    body.append(mk('label',{textContent:ev.n>1?'ผู้เข้าแข่งขันคนที่ '+(i+1):'ผู้เข้าแข่งขัน'}),mk('div',{className:'row'},[s.p,s.f,s.l]))}
   const t={p:sel(CFG.teacherPrefixes),f:inp('ชื่อ'),l:inp('นามสกุล')};
-  body.append(mk('label',{textContent:'ครูผู้ควบคุม '+ev.name}),mk('div',{className:'row t'},[t.p,t.f,t.l]));
+  body.append(mk('label',{textContent:'ครูผู้ควบคุม '+ev.name}),mk('div',{className:'row'},[t.p,t.f,t.l]));
   cb.onchange=()=>{body.classList.toggle('hide',!cb.checked);body.querySelectorAll('input').forEach(i=>i.required=cb.checked)};
   $('levels').append(mk('div',{className:'card'},[mk('label',{className:'ev'},[cb,document.createTextNode(ev.name+(ev.n>1?' (ทีมละ '+ev.n+' คน)':''))]),body]));
   blocks.push({lv,ev:ev.name,cb,students,t,body});
  })});
-function msg(el,t,ok){el.textContent=t;el.className='msg '+(ok?'ok':'er')}
 async function send(e){e.preventDefault();
  const entries=blocks.filter(b=>b.cb.checked).map(b=>({level:b.lv,event:b.ev,
   teacher:b.t.p.value+b.t.f.value.trim()+' '+b.t.l.value.trim(),
   students:b.students.map(s=>s.p.value+s.f.value.trim()+' '+s.l.value.trim())}));
  if(!entries.length)return msg($('m'),'กรุณาเลือกอย่างน้อย 1 รายการ',0),false;
- if(!CFG.SCRIPT_URL.startsWith('http'))return msg($('m'),'ยังไม่ได้ตั้งค่า SCRIPT_URL',0),false;
  $('sub').disabled=true;
  try{await fetch(CFG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
    body:JSON.stringify({email:$('email').value.trim(),school:$('school').value.trim(),entries})});
@@ -78,12 +101,45 @@ async function send(e){e.preventDefault();
 function fillSel(s,a){s.innerHTML='';a.forEach(x=>s.append(mk('option',{value:x,textContent:x})))}
 fillSel($('rl'),CFG.levels);fillSel($('re'),CFG.events.map(e=>e.name));
 let R=[];
-function tab(n){$('p1').classList.toggle('hide',n!=1);$('p2').classList.toggle('hide',n!=2);$('b1').classList.toggle('on',n==1);$('b2').classList.toggle('on',n==2);if(n==2)loadResults()}
+function tab(n){[1,2,3].forEach(i=>{$('p'+i).classList.toggle('hide',i!=n);$('b'+i).classList.toggle('on',i==n)});if(n==2)loadResults()}
 async function loadResults(){try{R=await (await fetch(CFG.SCRIPT_URL+'?action=results')).json();showResults()}catch(x){msg($('rn'),'โหลดผลไม่สำเร็จ',0)}}
+function rank(a){const i=CFG.awards.indexOf(a);return i<0?99:i}
 function showResults(){const q=$('q').value.trim().toLowerCase();
- const rows=R.filter(r=>r['ระดับ']===$('rl').value&&r['รายการ']===$('re').value&&(!q||String(r['โรงเรียน']).toLowerCase().includes(q)));
- const cols=['อันดับ','โรงเรียน','คะแนน','รางวัล'];
+ const rows=R.filter(r=>r['ระดับ']===$('rl').value&&r['รายการ']===$('re').value&&(!q||String(r['โรงเรียน']).toLowerCase().includes(q)))
+  .sort((a,b)=>rank(a['รางวัล'])-rank(b['รางวัล']));
+ const cols=['รางวัล','โรงเรียน'];
  $('rh').innerHTML='';$('rh').append(mk('tr',{},cols.map(c=>mk('th',{textContent:c}))));
  $('rb').innerHTML='';rows.forEach(r=>$('rb').append(mk('tr',{},cols.map(c=>mk('td',{textContent:r[c]??''})))));
  $('rn').className=rows.length?'hide':'msg er';$('rn').textContent='ยังไม่มีผลประกาศ หรือไม่พบข้อมูล'}
+// ===== ใบประกาศนียบัตร =====
+let C=[];
+const evLabel=e=>'การแข่งขัน'+e.replace(/^การแข่งขัน/,'');
+async function findCerts(){
+ $('cl').innerHTML='';$('cb').disabled=true;
+ try{const u=CFG.SCRIPT_URL+'?action=cert&school='+encodeURIComponent($('cs').value.trim())+'&email='+encodeURIComponent($('ce').value.trim());
+  const d=await (await fetch(u)).json();
+  if(d.error==='closed')msg($('cm'),'ยังไม่เปิดให้พิมพ์ใบประกาศนียบัตร กรุณารอประกาศจากผู้จัด',0);
+  else if(d.error||!d.items||!d.items.length)msg($('cm'),'ไม่พบข้อมูล กรุณาตรวจสอบชื่อโรงเรียนและอีเมลให้ตรงกับตอนสมัคร',0);
+  else{C=[];d.items.forEach(it=>it.students.filter(Boolean).forEach(n=>C.push({name:n,school:it.school,level:it.level,event:it.event,award:it.award})));
+   msg($('cm'),'พบใบประกาศ '+C.length+' ใบ',1);
+   const all=mk('button',{className:'btn',textContent:'ดาวน์โหลดทั้งหมด (PDF เดียว)',onclick:e=>dl(C,'เกียรติบัตร-ทั้งหมด.pdf',e.target)});
+   $('cl').append(mk('div',{style:'margin:10px 0'},[all]));
+   C.forEach(c=>{const b=mk('button',{className:'btn s',textContent:'ดาวน์โหลด PDF',onclick:e=>dl([c],'เกียรติบัตร-'+c.name+'.pdf',e.target)});
+    $('cl').append(mk('div',{className:'ci'},[mk('div',{textContent:c.name+' — '+c.event+' '+c.level+' — '+(c.award||'เข้าร่วมการแข่งขัน')}),b]))})}
+ }catch(x){msg($('cm'),'เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง',0)}
+ $('cb').disabled=false}
+function fillCert(c){
+ $('c-org').textContent=CFG.cert.org;$('c-name').textContent=c.name;
+ $('c-act').textContent=c.award?'ได้รับรางวัล':'ได้เข้าร่วม';$('c-aw').textContent=c.award||'';
+ $('c-ev').textContent=evLabel(c.event);$('c-lv').textContent='ระดับประถมศึกษา '+c.level;
+ $('c-sc').textContent='โรงเรียน'+c.school.replace(/^โรงเรียน/,'');
+ $('c-sg').textContent=[CFG.cert.date,CFG.cert.signer&&'ลงชื่อ '+CFG.cert.signer,CFG.cert.position].filter(Boolean).join('\n');
+ $('c-sg').style.whiteSpace='pre-line'}
+async function dl(list,fn,btn){
+ const old=btn.textContent;btn.disabled=true;btn.textContent='กำลังสร้าง PDF...';
+ try{await document.fonts.ready;const pdf=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  for(let i=0;i<list.length;i++){fillCert(list[i]);const cv=await html2canvas($('cert'),{scale:2});
+   if(i)pdf.addPage();pdf.addImage(cv.toDataURL('image/jpeg',.95),'JPEG',0,0,297,210)}
+  pdf.save(fn)}catch(x){msg($('cm'),'สร้าง PDF ไม่สำเร็จ: '+x.message,0)}
+ btn.disabled=false;btn.textContent=old}
 </script></body></html>
